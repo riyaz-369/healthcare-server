@@ -9,12 +9,19 @@ const getAllAdmin = async (req: Request, res: Response) => {
     adminFilterableFields
   );
 
-  const paginationQuery = pickSearchableFields(req.query, ["page", "limit"]);
+  const options = pickSearchableFields(req.query, [
+    "page",
+    "limit",
+    "sortBy",
+    "sortOrder",
+  ]);
+
+  console.log("paginationQuery:", options);
 
   try {
     const result = await adminService.getAllAdminsFromDB({
       searchableFields,
-      paginationQuery,
+      options,
     });
 
     res.status(200).json({
