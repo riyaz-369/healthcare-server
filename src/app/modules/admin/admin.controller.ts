@@ -1,17 +1,21 @@
 import type { Request, Response } from "express";
 import { adminService } from "./admin.service.js";
 import { pickSearchableFields } from "../../../utils/pickSearchableFields.js";
+import { adminFilterableFields } from "./admin.constant.js";
 
 const getAllAdmin = async (req: Request, res: Response) => {
-  const searchableFields = pickSearchableFields(req.query, [
-    "name",
-    "email",
-    "searchTerm",
-    "contactNumber",
-  ]);
+  const searchableFields = pickSearchableFields(
+    req.query,
+    adminFilterableFields
+  );
+
+  const paginationQuery = pickSearchableFields(req.query, ["page", "limit"]);
 
   try {
-    const result = await adminService.getAllAdminsFromDB(searchableFields);
+    const result = await adminService.getAllAdminsFromDB({
+      searchableFields,
+      paginationQuery,
+    });
 
     res.status(200).json({
       success: true,

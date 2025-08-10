@@ -93,6 +93,6 @@ Built using **modern web technologies**, it ensures secure data management, real
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/healthcare.git
-cd healthcare
+git clone https://github.com/riyaz-369/healthcare-server.git
+cd healthcare-server
 ```
