@@ -1,9 +1,17 @@
 import type { Request, Response } from "express";
 import { adminService } from "./admin.service.js";
+import { pickSearchableFields } from "../../../utils/pickSearchableFields.js";
 
 const getAllAdmin = async (req: Request, res: Response) => {
+  const searchableFields = pickSearchableFields(req.query, [
+    "name",
+    "email",
+    "searchTerm",
+    "contactNumber",
+  ]);
+
   try {
-    const result = await adminService.getAllAdminsFromDB(req.query);
+    const result = await adminService.getAllAdminsFromDB(searchableFields);
 
     res.status(200).json({
       success: true,
