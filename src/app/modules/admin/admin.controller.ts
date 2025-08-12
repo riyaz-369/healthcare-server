@@ -3,6 +3,7 @@ import { adminService } from "./admin.service.js";
 import { pickSearchableFields } from "../../../utils/pickSearchableFields.js";
 import { adminFilterableFields } from "./admin.constant.js";
 import { sendResponse } from "../../../utils/sendResponse.js";
+import HttpStatus from "http-status";
 
 const getAllAdmins = async (req: Request, res: Response) => {
   const searchableFields = pickSearchableFields(
@@ -26,7 +27,7 @@ const getAllAdmins = async (req: Request, res: Response) => {
     });
 
     sendResponse(res, {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       success: true,
       message: "Admin data retrieved successfully",
       meta: result?.meta,
@@ -47,7 +48,7 @@ const getSingleAdmin = async (req: Request, res: Response) => {
   try {
     const result = await adminService.getSingleAdminFromDB(id as string);
     sendResponse(res, {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       success: true,
       message: "Admin data retrieved successfully",
       data: result,
@@ -68,7 +69,7 @@ const updateAdmin = async (req: Request, res: Response) => {
   try {
     const result = await adminService.updateAdminIntoDB(id as string, data);
     sendResponse(res, {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       success: true,
       message: "Admin updated successfully",
       data: result,
@@ -88,7 +89,7 @@ const deleteAdmin = async (req: Request, res: Response) => {
   try {
     const result = await adminService.deleteAdminFromDB(id as string);
     sendResponse(res, {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       success: true,
       message: "Admin deleted successfully",
       data: result,
@@ -108,7 +109,7 @@ const softDeleteAdmin = async (req: Request, res: Response) => {
   try {
     const result = await adminService.softDeleteAdminFromDB(id as string);
     sendResponse(res, {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       success: true,
       message: "Admin soft deleted successfully",
       data: result,

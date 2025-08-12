@@ -4,8 +4,7 @@ import express, {
   type Response,
 } from "express";
 import cors from "cors";
-import { userRoutes } from "./app/modules/user/user.routes.js";
-import { adminRoutes } from "./app/modules/admin/admin.routes.js";
+import router from "./app/routes/index.js";
 
 const app: Application = express();
 
@@ -14,10 +13,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, World!");
+  res.send("Welcome to the Healthcare API");
 });
 
-app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/", router);
 
 export default app;
