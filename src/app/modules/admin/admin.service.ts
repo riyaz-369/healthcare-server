@@ -1,6 +1,7 @@
 import { adminSearchableFields } from "./admin.constant.js";
 import { calculatePagination } from "../../../utils/paginationHelper.js";
 import prisma from "../../../utils/prisma.js";
+import type { Admin } from "@prisma/client";
 
 type SearchQuery = {
   searchableFields: Record<string, unknown>;
@@ -86,7 +87,22 @@ const getSingleAdminFromDB = async (id: string) => {
   }
 };
 
+const updateAdminIntoDB = async (id: string, data: Partial<Admin>) => {
+  console.log("Updating admin with ID:", id, "Data:", data);
+  try {
+    const result = await prisma.admin.update({
+      where: { id },
+      data,
+    });
+    return result;
+  } catch (error) {
+    console.error("Error updating admin:", error);
+    throw error;
+  }
+};
+
 export const adminService = {
   getAllAdminsFromDB,
   getSingleAdminFromDB,
+  updateAdminIntoDB,
 };
