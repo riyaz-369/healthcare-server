@@ -71,6 +71,22 @@ const getAllAdminsFromDB = async ({
   }
 };
 
+const getSingleAdminFromDB = async (id: string) => {
+  try {
+    const result = await prisma.admin.findUnique({
+      where: { id },
+    });
+    if (!result) {
+      throw new Error(`Admin with ID ${id} not found`);
+    }
+    return result;
+  } catch (error) {
+    console.error("Error fetching single admin:", error);
+    throw error;
+  }
+};
+
 export const adminService = {
   getAllAdminsFromDB,
+  getSingleAdminFromDB,
 };
