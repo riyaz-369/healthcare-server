@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { adminService } from "./admin.service.js";
 import { pickSearchableFields } from "../../../utils/pickSearchableFields.js";
 import { adminFilterableFields } from "./admin.constant.js";
+import { sendResponse } from "../../../utils/sendResponse.js";
 
 const getAllAdmins = async (req: Request, res: Response) => {
   const searchableFields = pickSearchableFields(
@@ -24,7 +25,8 @@ const getAllAdmins = async (req: Request, res: Response) => {
       options,
     });
 
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Admin data retrieved successfully",
       meta: result?.meta,
@@ -44,7 +46,8 @@ const getSingleAdmin = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await adminService.getSingleAdminFromDB(id as string);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Admin data retrieved successfully",
       data: result,
@@ -64,7 +67,8 @@ const updateAdmin = async (req: Request, res: Response) => {
   const data = req.body;
   try {
     const result = await adminService.updateAdminIntoDB(id as string, data);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Admin updated successfully",
       data: result,
@@ -83,7 +87,8 @@ const deleteAdmin = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await adminService.deleteAdminFromDB(id as string);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Admin deleted successfully",
       data: result,
@@ -102,9 +107,10 @@ const softDeleteAdmin = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await adminService.softDeleteAdminFromDB(id as string);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
-      message: "Admin deleted successfully",
+      message: "Admin soft deleted successfully",
       data: result,
     });
   } catch (error) {
