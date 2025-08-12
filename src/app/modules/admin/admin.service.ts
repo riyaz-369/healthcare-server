@@ -1,7 +1,7 @@
 import { adminSearchableFields } from "./admin.constant.js";
 import { calculatePagination } from "../../../utils/paginationHelper.js";
 import prisma from "../../../utils/prisma.js";
-import type { Admin } from "@prisma/client";
+import { UserStatus, type Admin } from "@prisma/client";
 
 type SearchQuery = {
   searchableFields: Record<string, unknown>;
@@ -105,6 +105,10 @@ const updateAdminIntoDB = async (id: string, data: Partial<Admin>) => {
 
 const deleteAdminFromDB = async (id: string) => {
   try {
+    await prisma.admin.findUniqueOrThrow({
+      where: { id },
+    });
+
     const result = await prisma.$transaction(async (tx) => {
       const deletedAdmin = await tx.admin.delete({
         where: { id },
@@ -123,9 +127,36 @@ const deleteAdminFromDB = async (id: string) => {
   }
 };
 
+const softDeleteAdminFromDB = async (id: string) => {
+  try {
+    await prisma.admin.findUniqueOrThrow({
+      where: { id },
+    });
+
+    const result = await prisma.$transaction(async (tx) => {
+      const deletedAdmin = await tx.admin.update({
+        where: { id },
+        data: { isDeleted: true },
+      });
+
+      const deletedUser = await tx.user.update({
+        where: { email: deletedAdmin.email },
+        data: { status: UserStatus.DELETED },
+      });
+
+      return { deletedAdmin, deletedUser };
+    });
+    return result;
+  } catch (error) {
+    console.error("Error deleting admin:", error);
+    throw error;
+  }
+};
+
 export const adminService = {
   getAllAdminsFromDB,
   getSingleAdminFromDB,
   updateAdminIntoDB,
   deleteAdminFromDB,
+  softDeleteAdminFromDB,
 };

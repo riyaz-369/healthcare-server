@@ -98,9 +98,29 @@ const deleteAdmin = async (req: Request, res: Response) => {
   }
 };
 
+const softDeleteAdmin = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await adminService.softDeleteAdminFromDB(id as string);
+    res.status(200).json({
+      success: true,
+      message: "Admin deleted successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error in deleteAdmin:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete admin",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
 export const adminController = {
   getAllAdmins,
   getSingleAdmin,
   updateAdmin,
   deleteAdmin,
+  softDeleteAdmin,
 };
