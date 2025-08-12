@@ -74,12 +74,14 @@ const getAllAdminsFromDB = async ({
 
 const getSingleAdminFromDB = async (id: string) => {
   try {
+    await prisma.admin.findUniqueOrThrow({
+      where: { id },
+    });
+
     const result = await prisma.admin.findUnique({
       where: { id },
     });
-    if (!result) {
-      throw new Error(`Admin with ID ${id} not found`);
-    }
+
     return result;
   } catch (error) {
     console.error("Error fetching single admin:", error);
@@ -101,8 +103,29 @@ const updateAdminIntoDB = async (id: string, data: Partial<Admin>) => {
   }
 };
 
+const deleteAdminFromDB = async (id: string) => {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const deletedAdmin = await tx.admin.delete({
+        where: { id },
+      });
+
+      const deletedUser = await tx.user.delete({
+        where: { email: deletedAdmin.email },
+      });
+
+      return { deletedAdmin, deletedUser };
+    });
+    return result;
+  } catch (error) {
+    console.error("Error deleting admin:", error);
+    throw error;
+  }
+};
+
 export const adminService = {
   getAllAdminsFromDB,
   getSingleAdminFromDB,
   updateAdminIntoDB,
+  deleteAdminFromDB,
 };
