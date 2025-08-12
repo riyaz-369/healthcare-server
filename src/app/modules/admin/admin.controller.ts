@@ -16,7 +16,7 @@ const getAllAdmin = async (req: Request, res: Response) => {
     "sortOrder",
   ]);
 
-  console.log("paginationQuery:", options);
+  // console.log("paginationQuery:", options);
 
   try {
     const result = await adminService.getAllAdminsFromDB({
@@ -27,7 +27,8 @@ const getAllAdmin = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Admin data retrieved successfully",
-      data: result,
+      meta: result?.meta,
+      data: result?.data,
     });
   } catch (error) {
     console.error("Error in getAllAdmin:", error);

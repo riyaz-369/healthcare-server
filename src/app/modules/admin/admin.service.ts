@@ -12,7 +12,7 @@ const getAllAdminsFromDB = async ({
   options,
 }: SearchQuery) => {
   const { searchTerm, ...restParams } = searchableFields;
-  const { take, skip, orderBy } = calculatePagination(options);
+  const { take, skip, orderBy, page } = calculatePagination(options);
 
   const andConditions = [];
 
@@ -53,7 +53,19 @@ const getAllAdminsFromDB = async ({
       take,
       orderBy,
     });
-    return result;
+
+    const total = await prisma.admin.count({
+      where: whereConditions,
+    });
+
+    return {
+      meta: {
+        page,
+        limit: skip,
+        total,
+      },
+      data: result,
+    };
   } catch (error) {
     console.error("Error fetching admins:", error);
   }
