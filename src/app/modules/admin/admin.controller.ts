@@ -1,11 +1,15 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { adminService } from "./admin.service.js";
 import { pickSearchableFields } from "../../../utils/pickSearchableFields.js";
 import { adminFilterableFields } from "./admin.constant.js";
 import { sendResponse } from "../../../utils/sendResponse.js";
 import HttpStatus from "http-status";
 
-const getAllAdmins = async (req: Request, res: Response) => {
+const getAllAdmins = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const searchableFields = pickSearchableFields(
     req.query,
     adminFilterableFields
@@ -34,12 +38,7 @@ const getAllAdmins = async (req: Request, res: Response) => {
       data: result?.data,
     });
   } catch (error) {
-    console.error("Error in getAllAdmin:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve admin data",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
@@ -63,7 +62,7 @@ const getSingleAdmin = async (req: Request, res: Response) => {
   }
 };
 
-const updateAdmin = async (req: Request, res: Response) => {
+const updateAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   const data = req.body;
   try {
@@ -75,16 +74,11 @@ const updateAdmin = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error("Error in updateAdmin:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to update admin",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
-const deleteAdmin = async (req: Request, res: Response) => {
+const deleteAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   try {
     const result = await adminService.deleteAdminFromDB(id as string);
@@ -95,16 +89,15 @@ const deleteAdmin = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error("Error in deleteAdmin:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete admin",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
-const softDeleteAdmin = async (req: Request, res: Response) => {
+const softDeleteAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   try {
     const result = await adminService.softDeleteAdminFromDB(id as string);
@@ -115,12 +108,7 @@ const softDeleteAdmin = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error("Error in deleteAdmin:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete admin",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    next(error);
   }
 };
 
