@@ -3,11 +3,13 @@ import bcrypt from "bcrypt";
 import type { LoginPayload } from "./auth.interface.js";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { jwtHelper } from "../../../utils/jwtHelper.js";
+import { UserStatus } from "@prisma/client";
 
 const logInUser = async (payload: LoginPayload) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: payload.email,
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -50,6 +52,7 @@ const refreshToken = async (token: string) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: decodedData.email,
+      status: UserStatus.ACTIVE,
     },
   });
 
