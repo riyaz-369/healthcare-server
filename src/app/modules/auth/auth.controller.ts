@@ -7,9 +7,7 @@ import HttpStatus from "http-status";
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.logInUser(req.body);
 
-  const { refreshToken } = result;
-
-  res.cookie("refreshToken", refreshToken, {
+  res.cookie("refreshToken", result.refreshToken, {
     httpOnly: true,
     secure: false, // Set to true if using HTTPS
   });
@@ -25,6 +23,18 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+  const result = await authService.refreshToken(req.cookies.refreshToken);
+
+  sendResponse(res, {
+    statusCode: HttpStatus.OK,
+    success: true,
+    message: "Token refreshed successfully",
+    data: result,
+  });
+});
+
 export const authController = {
   loginUser,
+  refreshToken,
 };

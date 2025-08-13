@@ -1,8 +1,9 @@
 import generateToken from "../../../utils/generateToken.js";
 import prisma from "../../../utils/prisma.js";
 import bcrypt from "bcrypt";
+import type { LoginPayload } from "./auth.interface.js";
 
-const logInUser = async (payload: { email: string; password: string }) => {
+const logInUser = async (payload: LoginPayload) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: payload.email,
@@ -18,23 +19,13 @@ const logInUser = async (payload: { email: string; password: string }) => {
     throw new Error("Incorrect email or password");
   }
 
-  const accessToken = generateToken(
-    {
-      email: userData.email,
-      role: userData.role,
-    },
-    "abcdefg",
-    "5m"
-  );
+  const jwtPayloadData = {
+    email: userData.email,
+    role: userData.role,
+  };
 
-  const refreshToken = generateToken(
-    {
-      email: userData.email,
-      role: userData.role,
-    },
-    "abcdefgh",
-    "30d"
-  );
+  const accessToken = generateToken(jwtPayloadData, "abcdefg", "5m");
+  const refreshToken = generateToken(jwtPayloadData, "abcdefgh", "30d");
 
   return {
     accessToken,
@@ -43,6 +34,11 @@ const logInUser = async (payload: { email: string; password: string }) => {
   };
 };
 
+const refreshToken = async (token: string) => {
+  console.log("token::", token);
+};
+
 export const authService = {
   logInUser,
+  refreshToken,
 };
