@@ -1,6 +1,6 @@
+import generateToken from "../../../utils/generateToken.js";
 import prisma from "../../../utils/prisma.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
 const logInUser = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -14,19 +14,33 @@ const logInUser = async (payload: { email: string; password: string }) => {
     userData.password
   );
 
-  const accessToken = jwt.sign(
+  if (!isCorrectPassword) {
+    throw new Error("Incorrect email or password");
+  }
+
+  const accessToken = generateToken(
     {
       email: userData.email,
       role: userData.role,
     },
     "abcdefg",
-    {
-      algorithm: "HS256",
-      expiresIn: "15m",
-    }
+    "5m"
   );
 
-  console.log(`Access Token: ${accessToken}`);
+  const refreshToken = generateToken(
+    {
+      email: userData.email,
+      role: userData.role,
+    },
+    "abcdefgh",
+    "30d"
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+    needPasswordChange: userData.needPasswordChange,
+  };
 };
 
 export const authService = {
