@@ -23,7 +23,6 @@ app.use("/api/v1/", router);
 app.use(globalErrorHandler);
 
 app.use((req: Request, res: Response) => {
-  console.log("req:", req);
   res.status(HttpStatus.NOT_FOUND).json({
     success: false,
     message: "Not Found",
