@@ -1,11 +1,19 @@
 import express from "express";
 import { adminController } from "./admin.controller.js";
+import validateRequest from "../../middlewares/validateRequest.js";
+import { AdminValidationSchema } from "./admin.validation.js";
 
 const router = express.Router();
 
 router.get("/", adminController.getAllAdmins);
 router.get("/:id", adminController.getSingleAdmin);
-router.patch("/:id", adminController.updateAdmin);
+
+router.patch(
+  "/:id",
+  validateRequest(AdminValidationSchema.update),
+  adminController.updateAdmin
+);
+
 router.delete("/:id", adminController.deleteAdmin);
 router.delete("/soft/:id", adminController.softDeleteAdmin);
 
