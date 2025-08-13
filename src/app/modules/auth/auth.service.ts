@@ -2,6 +2,7 @@ import generateToken from "../../../utils/generateToken.js";
 import prisma from "../../../utils/prisma.js";
 import bcrypt from "bcrypt";
 import type { LoginPayload } from "./auth.interface.js";
+import jwt from "jsonwebtoken";
 
 const logInUser = async (payload: LoginPayload) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -35,7 +36,32 @@ const logInUser = async (payload: LoginPayload) => {
 };
 
 const refreshToken = async (token: string) => {
-  console.log("token::", token);
+  let decodedData;
+  try {
+    decodedData = jwt.verify(token, "abcdefgh");
+  } catch (error) {
+    throw new Error("You are not authorized!");
+  }
+
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: decodedData.email,
+    },
+  });
+
+  const accessToken = generateToken(
+    {
+      email: userData.email,
+      role: userData.role,
+    },
+    "abcdefg",
+    "5m"
+  );
+
+  return {
+    accessToken,
+    needPasswordChange: userData?.needPasswordChange,
+  };
 };
 
 export const authService = {
