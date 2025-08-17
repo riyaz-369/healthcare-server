@@ -5,7 +5,7 @@ import ApiError from "../errors/apiError.js";
 import HttpStatus from "http-status";
 
 const auth = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request & { user?: any }, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization;
 
@@ -14,6 +14,7 @@ const auth = (...roles: string[]) => {
       }
 
       const verifiedUser = jwtHelper.verifyToken(token, config.jwt.jwt_secret);
+      req.user = verifiedUser;
       // console.log("Verified user:", verifiedUser);
 
       if (!roles.includes(verifiedUser.role)) {
