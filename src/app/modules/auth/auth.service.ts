@@ -4,6 +4,7 @@ import type { LoginPayload } from "./auth.interface.js";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { jwtHelper } from "../../../utils/jwtHelper.js";
 import { UserStatus } from "@prisma/client";
+import config from "../../../config/index.js";
 
 const logInUser = async (payload: LoginPayload) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -27,11 +28,15 @@ const logInUser = async (payload: LoginPayload) => {
     role: userData.role,
   };
 
-  const accessToken = jwtHelper.generateToken(jwtPayloadData, "abcdefg", "5m");
+  const accessToken = jwtHelper.generateToken(
+    jwtPayloadData,
+    config.jwt.jwt_secret,
+    config.jwt.expires_in
+  );
   const refreshToken = jwtHelper.generateToken(
     jwtPayloadData,
-    "abcdefgh",
-    "30d"
+    config.jwt.refresh_token_secret,
+    config.jwt.refresh_token_expires_in
   );
 
   return {
@@ -44,7 +49,7 @@ const logInUser = async (payload: LoginPayload) => {
 const refreshToken = async (token: string) => {
   let decodedData;
   try {
-    decodedData = jwtHelper.verifyToken(token, "abcdefgh");
+    decodedData = jwtHelper.verifyToken(token, config.jwt.refresh_token_secret);
   } catch (error) {
     throw new Error("You are not authorized!");
   }
@@ -61,8 +66,8 @@ const refreshToken = async (token: string) => {
       email: userData.email,
       role: userData.role,
     },
-    "abcdefg",
-    "5m"
+    config.jwt.jwt_secret,
+    config.jwt.expires_in
   );
 
   return {
