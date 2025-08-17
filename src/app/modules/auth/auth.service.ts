@@ -1,7 +1,6 @@
 import prisma from "../../../utils/prisma.js";
 import bcrypt from "bcrypt";
 import type { LoginPayload } from "./auth.interface.js";
-import jwt, { type JwtPayload } from "jsonwebtoken";
 import { jwtHelper } from "../../../utils/jwtHelper.js";
 import { UserStatus } from "@prisma/client";
 import config from "../../../config/index.js";
