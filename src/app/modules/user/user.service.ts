@@ -2,6 +2,9 @@ import { UserRole } from "@prisma/client";
 import bcrypt from "bcrypt";
 import prisma from "../../../utils/prisma.js";
 import { fileUploader } from "../../../utils/fileUploader.js";
+import type { SearchQuery } from "../admin/admin.service.js";
+import { calculatePagination } from "../../../utils/paginationHelper.js";
+import { userSearchableFields } from "./user.constant.js";
 
 type SecureURL = {
   secure_url: string;
@@ -102,8 +105,74 @@ const createPatient = async (req: any) => {
 
   return result;
 };
+
+const getAllUsersFromDB = async ({
+  searchableFields,
+  options,
+}: SearchQuery) => {
+  const { searchTerm, ...restParams } = searchableFields;
+  const { take, skip, orderBy, page } = calculatePagination(options);
+
+  const andConditions = [];
+
+  if (searchableFields.searchTerm) {
+    andConditions.push({
+      OR: userSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchableFields.searchTerm as string,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(restParams).length > 0) {
+    andConditions.push({
+      AND: Object.keys(restParams).map((key) => ({
+        [key]: {
+          equals: restParams[key],
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  //   console.dir(andConditions, { depth: "infinite" });
+
+  const whereConditions: Record<string, unknown> = {
+    AND: andConditions,
+  };
+
+  //   console.dir(whereConditions, { depth: "infinite" });
+
+  try {
+    const result = await prisma.user.findMany({
+      where: whereConditions,
+      skip,
+      take,
+      orderBy,
+    });
+
+    const total = await prisma.user.count({
+      where: whereConditions,
+    });
+
+    return {
+      meta: {
+        page,
+        limit: skip,
+        total,
+      },
+      data: result,
+    };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+  }
+};
+
 export const userServices = {
   createAdmin,
   createDoctor,
   createPatient,
+  getAllUsersFromDB,
 };

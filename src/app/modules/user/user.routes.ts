@@ -11,6 +11,8 @@ import { userValidation } from "./user.validation.js";
 
 const router = express.Router();
 
+router.get("/", userController.getAllPatients);
+
 router.post(
   "/create-admin",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
@@ -37,7 +39,6 @@ router.post(
 
 router.post(
   "/create-patient",
-  // auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   fileUploader.upload.single("file"),
   (req: Request, res: Response, next: NextFunction) => {
     req.body = userValidation.createPatientSchema.parse(

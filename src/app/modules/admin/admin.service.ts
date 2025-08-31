@@ -3,7 +3,7 @@ import { calculatePagination } from "../../../utils/paginationHelper.js";
 import prisma from "../../../utils/prisma.js";
 import { UserStatus, type Admin } from "@prisma/client";
 
-type SearchQuery = {
+export type SearchQuery = {
   searchableFields: Record<string, unknown>;
   options: Record<string, any>;
 };
