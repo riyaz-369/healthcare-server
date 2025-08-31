@@ -10,6 +10,7 @@ router.post(
   "/",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   fileUploader.upload.single("file"),
+  fileUploader.uploadToCloudinary,
   userController.createAdmin
 );
 
