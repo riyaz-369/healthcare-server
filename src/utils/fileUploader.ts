@@ -33,6 +33,7 @@ const uploadToCloudinary = async (file: any) => {
       (error, result) => {
         fs.unlinkSync(file.path); // Delete the file after upload
         if (error) {
+          console.error("Error uploading to Cloudinary:", error);
           reject(error);
         } else {
           resolve(result);
