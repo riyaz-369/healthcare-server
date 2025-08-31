@@ -1,24 +1,18 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { userServices } from "./user.service.js";
+import catchAsync from "../../../utils/catchAsync.js";
+import { sendResponse } from "../../../utils/sendResponse.js";
+import HttpStatus from "http-status";
 
-const createAdmin = async (req: Request, res: Response) => {
-  try {
-    const result = await userServices.createAdmin(req.body);
-    res.status(201).json({
-      success: true,
-      message: "Admin created successfully",
-      data: result,
-    });
-  } catch (error) {
-    console.error("Error creating admin:", error);
-    res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.name : "Failed to create admin",
-      error:
-        error instanceof Error ? error.message : "An unexpected error occurred",
-    });
-  }
-};
+const createAdmin = catchAsync(async (req, res) => {
+  const result = await userServices.createAdmin(req);
+  sendResponse(res, {
+    statusCode: HttpStatus.CREATED,
+    success: true,
+    message: "Admin created successfully",
+    data: result,
+  });
+});
 
 export const userController = {
   createAdmin,

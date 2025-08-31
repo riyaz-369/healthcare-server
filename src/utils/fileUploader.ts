@@ -1,6 +1,7 @@
 import multer from "multer";
 import path from "path";
 import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -13,23 +14,32 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const uploadToCloudinary = async () => {
+const uploadToCloudinary = async (file: any) => {
+  // console.log("file form uploadToCloudinary:", file);
+
   cloudinary.config({
     cloud_name: "health-care-server",
     api_key: "827697174976271",
-    api_secret: "1RQ0eGSyNe-NdjgF78OjUrqne4w", // Click 'View API Keys' above to copy your API secret
+    api_secret: "1RQ0eGSyNe-NdjgF78OjUrqne4w",
   });
 
   // Upload an image
-  const uploadResult = await cloudinary.uploader
-    .upload(process.cwd() + "/uploads/IMG_20240926_202311.jpg", {
-      public_id: "shoes",
-    })
-    .catch((error) => {
-      console.dir(error, { depth: "infinity" });
-    });
-
-  console.log("uploadResult", uploadResult);
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      file.path,
+      {
+        public_id: file.originalname,
+      },
+      (error, result) => {
+        fs.unlinkSync(file.path); // Delete the file after upload
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
 };
 
 export const fileUploader = {
