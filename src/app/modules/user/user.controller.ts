@@ -85,7 +85,17 @@ const getMyProfile = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: HttpStatus.OK,
     success: true,
-    message: "My profile retrieved successfully",
+    message: "Profile retrieved successfully",
+    data: result,
+  });
+});
+
+const updateMyProfile = catchAsync(async (req, res) => {
+  const result = await userServices.updateMyProfile(req.user, req.body);
+  sendResponse(res, {
+    statusCode: HttpStatus.OK,
+    success: true,
+    message: "Profile updated successfully",
     data: result,
   });
 });
@@ -97,4 +107,5 @@ export const userController = {
   getAllPatients,
   changeProfileStatus,
   getMyProfile,
+  updateMyProfile,
 };
