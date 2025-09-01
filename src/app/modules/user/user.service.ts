@@ -5,6 +5,7 @@ import { fileUploader } from "../../../utils/fileUploader.js";
 import type { SearchQuery } from "../admin/admin.service.js";
 import { calculatePagination } from "../../../utils/paginationHelper.js";
 import { userSearchableFields } from "./user.constant.js";
+import type { Request } from "express";
 
 type SecureURL = {
   secure_url: string;
@@ -238,13 +239,21 @@ const getMyProfile = async (user: User) => {
   };
 };
 
-const updateMyProfile = async (user: User, payload: Partial<User>) => {
+const updateMyProfile = async (user: User, req: Request) => {
   const userInfo = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
       status: UserStatus.ACTIVE,
     },
   });
+
+  if (req.file) {
+    const uploadToCloudinary = (await fileUploader.uploadToCloudinary(
+      req.file
+    )) as SecureURL;
+
+    req.body.profilePhoto = uploadToCloudinary.secure_url;
+  }
 
   let profileInfo = null;
 
@@ -253,28 +262,28 @@ const updateMyProfile = async (user: User, payload: Partial<User>) => {
       where: {
         email: userInfo.email,
       },
-      data: payload,
+      data: req.body,
     });
   } else if (userInfo.role === UserRole.ADMIN) {
     profileInfo = await prisma.admin.update({
       where: {
         email: userInfo.email,
       },
-      data: payload,
+      data: req.body,
     });
   } else if (userInfo.role === UserRole.DOCTOR) {
     profileInfo = await prisma.doctor.update({
       where: {
         email: userInfo.email,
       },
-      data: payload,
+      data: req.body,
     });
   } else if (userInfo.role === UserRole.PATIENT) {
     profileInfo = await prisma.patient.update({
       where: {
         email: userInfo.email,
       },
-      data: payload,
+      data: req.body,
     });
   }
 
