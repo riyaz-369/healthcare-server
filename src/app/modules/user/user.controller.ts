@@ -4,7 +4,7 @@ import catchAsync from "../../../utils/catchAsync.js";
 import { sendResponse } from "../../../utils/sendResponse.js";
 import HttpStatus from "http-status";
 import { pickSearchableFields } from "../../../utils/pickSearchableFields.js";
-import { patientFilterableFields } from "./user.constant.js";
+import { userFilterableFields } from "./user.constant.js";
 
 const createAdmin = catchAsync(async (req, res) => {
   const result = await userServices.createAdmin(req);
@@ -37,9 +37,11 @@ const createPatient = catchAsync(async (req, res) => {
 });
 
 const getAllPatients = catchAsync(async (req, res) => {
+  // console.log("req.query", req.query);
+
   const searchableFields = pickSearchableFields(
     req.query,
-    patientFilterableFields
+    userFilterableFields
   );
 
   const options = pickSearchableFields(req.query, [
@@ -48,6 +50,8 @@ const getAllPatients = catchAsync(async (req, res) => {
     "sortBy",
     "sortOrder",
   ]);
+
+  console.log("options:", options);
 
   const result = await userServices.getAllUsersFromDB({
     searchableFields,
@@ -63,9 +67,23 @@ const getAllPatients = catchAsync(async (req, res) => {
   });
 });
 
+const changeProfileStatus = catchAsync(async (req, res) => {
+  const result = await userServices.changeProfileStatus(
+    req.params.id!,
+    req.body
+  );
+  sendResponse(res, {
+    statusCode: HttpStatus.OK,
+    success: true,
+    message: "Profile status changed successfully",
+    data: result,
+  });
+});
+
 export const userController = {
   createAdmin,
   createDoctor,
   createPatient,
   getAllPatients,
+  changeProfileStatus,
 };

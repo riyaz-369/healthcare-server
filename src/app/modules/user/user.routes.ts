@@ -11,7 +11,11 @@ import { userValidation } from "./user.validation.js";
 
 const router = express.Router();
 
-router.get("/", userController.getAllPatients);
+router.get(
+  "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  userController.getAllPatients
+);
 
 router.post(
   "/create-admin",
@@ -46,6 +50,12 @@ router.post(
     );
     return userController.createPatient(req, res, next);
   }
+);
+
+router.patch(
+  "/:id/status",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  userController.changeProfileStatus
 );
 
 export const userRoutes = router;

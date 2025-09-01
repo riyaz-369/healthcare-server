@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { Prisma, UserRole, UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import prisma from "../../../utils/prisma.js";
 import { fileUploader } from "../../../utils/fileUploader.js";
@@ -113,7 +113,7 @@ const getAllUsersFromDB = async ({
   const { searchTerm, ...restParams } = searchableFields;
   const { take, skip, orderBy, page } = calculatePagination(options);
 
-  const andConditions = [];
+  const andConditions: Prisma.UserWhereInput[] = [];
 
   if (searchableFields.searchTerm) {
     andConditions.push({
@@ -139,9 +139,8 @@ const getAllUsersFromDB = async ({
 
   //   console.dir(andConditions, { depth: "infinite" });
 
-  const whereConditions: Record<string, unknown> = {
-    AND: andConditions,
-  };
+  const whereConditions: Prisma.UserWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
   //   console.dir(whereConditions, { depth: "infinite" });
 
@@ -170,9 +169,28 @@ const getAllUsersFromDB = async ({
   }
 };
 
+const changeProfileStatus = async (
+  id: string,
+  data: { status: UserStatus }
+) => {
+  await prisma.user.findUniqueOrThrow({
+    where: { id },
+  });
+
+  const updateUserStatus = await prisma.user.update({
+    where: { id },
+    data: {
+      status: data.status,
+    },
+  });
+
+  return updateUserStatus;
+};
+
 export const userServices = {
   createAdmin,
   createDoctor,
   createPatient,
   getAllUsersFromDB,
+  changeProfileStatus,
 };

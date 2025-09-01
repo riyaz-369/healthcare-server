@@ -1,8 +1,8 @@
-export const userSearchableFields: string[] = ["name", "email"];
-
-export const patientFilterableFields: string[] = [
+export const userFilterableFields: string[] = [
+  "searchTerm",
   "email",
   "role",
   "status",
-  "searchTerm",
-];
+]; // all filterable fields
+
+export const userSearchableFields: string[] = ["email"]; // only for searchTerm
